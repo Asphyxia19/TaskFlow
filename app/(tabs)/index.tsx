@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import {
   StyleSheet,
@@ -16,16 +17,26 @@ export default function HomeScreen() {
         <TextInput style={styles.input} placeholder="Enter Task" />
 
         <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
+          <MaterialIcons name="add" size={22} color="#fff" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.taskRow}>
-        <Text>☐ Study React Native</Text>
+        <MaterialIcons
+          name="check-box-outline-blank"
+          size={22}
+          color="#5A6472"
+        />
+        <Text style={styles.taskText}>Study React Native</Text>
       </View>
 
       <View style={styles.taskRow}>
-        <Text>☐ Finish Assignment</Text>
+        <MaterialIcons
+          name="check-box-outline-blank"
+          size={22}
+          color="#5A6472"
+        />
+        <Text style={styles.taskText}>Finish Assignment</Text>
       </View>
     </View>
   );
@@ -43,6 +54,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 50,
     marginBottom: 20,
+    color: "#1F2A44",
   },
 
   inputRow: {
@@ -53,7 +65,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#D9DEE7",
     borderRadius: 8,
     padding: 10,
     marginRight: 10,
@@ -63,17 +75,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#2E5BBA",
     borderRadius: 8,
     justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 15,
   },
 
-  addButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-
   taskRow: {
-    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+  },
+
+  taskText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#1F2A44",
   },
 });
