@@ -9,6 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {
+  GestureHandlerRootView,
+  Swipeable,
+} from "react-native-gesture-handler";
 import { supabase } from "../../lib/supabase";
 
 export default function HomeScreen() {
@@ -72,41 +76,88 @@ export default function HomeScreen() {
     fetchTasks();
   }
 
+  async function deleteTask(taskId: string) {
+    Alert.alert("Delete Task", "Are you sure you want to delete this task?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          const { error } = await supabase
+            .from("tasks")
+            .delete()
+            .eq("id", taskId);
+
+          if (error) {
+            console.log(error);
+            Alert.alert("Error", "Failed to delete task");
+            return;
+          }
+
+          fetchTasks();
+        },
+      },
+    ]);
+  }
+
+  const renderRightActions = (taskId: string) => {
+    return (
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => deleteTask(taskId)}
+      >
+        <MaterialIcons name="delete" size={28} color="#fff" />
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>TaskFlow</Text>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <Text style={styles.title}>TaskFlow</Text>
 
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Task"
-          value={task}
-          onChangeText={setTask}
-        />
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Task"
+            value={task}
+            onChangeText={setTask}
+          />
 
-        <TouchableOpacity style={styles.addButton} onPress={addTask}>
-          <MaterialIcons name="add" size={22} color="#fff" />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.addButton} onPress={addTask}>
+            <MaterialIcons name="add" size={22} color="#fff" />
+          </TouchableOpacity>
+        </View>
 
-      <ScrollView>
-        {tasks.map((item) => (
-          <View key={item.id} style={styles.taskRow}>
-            <TouchableOpacity
-              onPress={() => toggleTask(item.id, item.completed)}
+        <ScrollView>
+          {tasks.map((item) => (
+            <Swipeable
+              key={item.id}
+              renderRightActions={() => renderRightActions(item.id)}
             >
-              <MaterialIcons
-                name={item.completed ? "check-box" : "check-box-outline-blank"}
-                size={22}
-                color="#5A6472"
-              />
-            </TouchableOpacity>
+              <View style={styles.taskRow}>
+                <TouchableOpacity
+                  onPress={() => toggleTask(item.id, item.completed)}
+                >
+                  <MaterialIcons
+                    name={
+                      item.completed ? "check-box" : "check-box-outline-blank"
+                    }
+                    size={22}
+                    color="#5A6472"
+                  />
+                </TouchableOpacity>
 
-            <Text style={styles.taskText}>{item.title}</Text>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
+                <Text style={styles.taskText}>{item.title}</Text>
+              </View>
+            </Swipeable>
+          ))}
+        </ScrollView>
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -151,13 +202,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+    backgroundColor: "#fff",
   },
 
   taskText: {
     marginLeft: 10,
     fontSize: 16,
     color: "#1F2A44",
+  },
+
+  deleteButton: {
+    backgroundColor: "#E53935",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    marginVertical: 2,
   },
 });
