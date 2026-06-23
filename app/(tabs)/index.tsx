@@ -1,40 +1,61 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
-  StyleSheet,
+  View,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-} from "react-native";
+  StyleSheet,
+  Alert,
+  ScrollView,
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { supabase } from '../../lib/supabase';
 
 export default function HomeScreen() {
-  const [task, setTask] = useState("");
+  const [task, setTask] = useState('');
+  const [tasks, setTasks] = useState<any[]>([]);
 
-  const [tasks, setTasks] = useState([
-    {
-      id: "1",
-      title: "Study React Native",
-      completed: false,
-    },
-    {
-      id: "2",
-      title: "Finish Assignment",
-      completed: false,
-    },
-  ]);
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
-  function addTask() {
-    if (task.trim() === "") return;
+  async function fetchTasks() {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    const newTask = {
-      id: Date.now().toString(),
-      title: task,
-      completed: false,
-    };
+    if (error) {
+      console.log(error);
+      return;
+    }
 
-    setTasks([...tasks, newTask]);
-    setTask("");
+    setTasks(data || []);
+  }
+
+  async function addTask() {
+    if (task.trim() === '') {
+      Alert.alert('Error', 'Please enter a task');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('tasks')
+      .insert([
+        {
+          title: task,
+          completed: false,
+        },
+      ]);
+
+    if (error) {
+      console.log(error);
+      Alert.alert('Error', 'Failed to add task');
+      return;
+    }
+
+    setTask('');
+    fetchTasks();
   }
 
   return (
@@ -49,21 +70,36 @@ export default function HomeScreen() {
           onChangeText={setTask}
         />
 
-        <TouchableOpacity style={styles.addButton} onPress={addTask}>
-          <MaterialIcons name="add" size={22} color="#fff" />
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={addTask}>
+          <MaterialIcons
+            name="add"
+            size={22}
+            color="#fff"
+          />
         </TouchableOpacity>
       </View>
 
-      {tasks.map((item) => (
-        <View key={item.id} style={styles.taskRow}>
-          <MaterialIcons
-            name="check-box-outline-blank"
-            size={22}
-            color="#5A6472"
-          />
-          <Text style={styles.taskText}>{item.title}</Text>
-        </View>
-      ))}
+      <ScrollView>
+        {tasks.map((item) => (
+          <View key={item.id} style={styles.taskRow}>
+            <MaterialIcons
+              name={
+                item.completed
+                  ? 'check-box'
+                  : 'check-box-outline-blank'
+              }
+              size={22}
+              color="#5A6472"
+            />
+
+            <Text style={styles.taskText}>
+              {item.title}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 }
@@ -72,50 +108,50 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
 
   title: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginTop: 50,
     marginBottom: 20,
-    color: "#1F2A44",
+    color: '#1F2A44',
   },
 
   inputRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 20,
   },
 
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#D9DEE7",
+    borderColor: '#D9DEE7',
     borderRadius: 8,
     padding: 10,
     marginRight: 10,
   },
 
   addButton: {
-    backgroundColor: "#2E5BBA",
+    backgroundColor: '#2E5BBA',
     borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 15,
   },
 
   taskRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: '#eee',
   },
 
   taskText: {
     marginLeft: 10,
     fontSize: 16,
-    color: "#1F2A44",
+    color: '#1F2A44',
   },
 });
