@@ -1,4 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -16,6 +17,7 @@ import {
 import { supabase } from "../../lib/supabase";
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState<any[]>([]);
 
@@ -119,6 +121,13 @@ export default function HomeScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>TaskFlow</Text>
 
+        <TouchableOpacity
+          style={styles.cameraButton}
+          onPress={() => router.push("/camera")}
+        >
+          <Text style={styles.cameraButtonText}>📷 Open VisionAI Camera</Text>
+        </TouchableOpacity>
+
         <View style={styles.inputRow}>
           <TextInput
             style={styles.input}
@@ -175,6 +184,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: "#1F2A44",
   },
+
+  cameraButton: {
+    backgroundColor: "#5B3FA3",
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+
+  cameraButtonText: { color: "#fff", fontWeight: "bold", fontSize: 15 },
 
   inputRow: {
     flexDirection: "row",
