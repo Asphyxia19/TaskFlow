@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { imageToBase64 } from "../lib/gemini";
 
@@ -14,6 +15,8 @@ export default function PreviewScreen() {
   const { photoUri } = useLocalSearchParams<{ photoUri: string }>();
   const router = useRouter();
   const [converting, setConverting] = useState(false);
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
 
   async function handleAnalyze(promptKey: string) {
     setConverting(true);
@@ -32,7 +35,15 @@ export default function PreviewScreen() {
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: photoUri }} style={styles.preview} />
+      <View style={styles.imageWrapper}>
+        <Image
+          source={{ uri: photoUri }}
+          style={[
+            styles.preview,
+            isTablet ? styles.previewTablet : styles.previewPhone,
+          ]}
+        />
+      </View>
 
       {converting && (
         <View style={styles.loadingOverlay}>
@@ -81,7 +92,23 @@ export default function PreviewScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
-  preview: { flex: 1, resizeMode: "contain" },
+  imageWrapper: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  preview: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+  previewPhone: {
+    // full width on phones
+  },
+  previewTablet: {
+    maxWidth: 600,
+    alignSelf: "center",
+  },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
