@@ -1,9 +1,34 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { imageToBase64 } from "../lib/gemini";
 
 export default function PreviewScreen() {
   const { photoUri } = useLocalSearchParams<{ photoUri: string }>();
   const router = useRouter();
+  const [converting, setConverting] = useState(false);
+
+  async function handleAnalyze() {
+    setConverting(true);
+    try {
+      const base64Image = await imageToBase64(photoUri);
+      router.push({
+        pathname: "/result",
+        params: { base64Image },
+      });
+    } catch (err) {
+      console.log("Error converting image:", err);
+    } finally {
+      setConverting(false);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -18,14 +43,14 @@ export default function PreviewScreen() {
 
         <TouchableOpacity
           style={styles.analyzeButton}
-          onPress={() =>
-            router.push({
-              pathname: "/result",
-              params: { photoUri },
-            })
-          }
+          onPress={handleAnalyze}
+          disabled={converting}
         >
-          <Text style={styles.buttonText}>Analyze</Text>
+          {converting ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Analyze</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -41,6 +66,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   retakeButton: { backgroundColor: "#5A6472", padding: 14, borderRadius: 8 },
-  analyzeButton: { backgroundColor: "#5B3FA3", padding: 14, borderRadius: 8 },
+  analyzeButton: {
+    backgroundColor: "#5B3FA3",
+    padding: 14,
+    borderRadius: 8,
+    minWidth: 90,
+    alignItems: "center",
+  },
   buttonText: { color: "#fff", fontWeight: "bold" },
 });

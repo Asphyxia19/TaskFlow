@@ -1,7 +1,7 @@
-import { useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
+import { useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -31,7 +31,7 @@ export default function CameraScreen() {
 
   async function takePicture() {
     if (!cameraRef.current) return;
-    const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+    const result = await cameraRef.current.takePictureAsync({ quality: 0.3 });
     if (result) {
       router.push({
         pathname: "/preview",
