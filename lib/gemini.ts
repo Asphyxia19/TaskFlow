@@ -76,3 +76,35 @@ Respond ONLY with valid JSON in this exact shape, no extra text:
   "recommendations": "..."
 }
 `;
+
+export const PROMPTS = {
+  academic: `Act as a university professor. Looking at this image, provide an academic-style analysis: identify the objects present, the educational context, and one piece of constructive feedback.
+
+Respond ONLY with valid JSON in this exact shape, no extra text:
+{
+  "objects": ["...", "..."],
+  "context": "...",
+  "activities": "...",
+  "recommendations": "..."
+}`,
+
+  safety: `Act as a workplace safety inspector. Looking at this image, identify any visible hazards, risks, or safety concerns. If none are visible, state that clearly.
+
+Respond ONLY with valid JSON in this exact shape, no extra text:
+{
+  "objects": ["...", "..."],
+  "context": "...",
+  "activities": "...",
+  "recommendations": "..."
+}`,
+
+  inventory: `Act as an asset management clerk. Looking at this image, list every visible physical asset as a clean inventory list, with no extra commentary.
+
+Respond ONLY with valid JSON in this exact shape, no extra text:
+{
+  "objects": ["...", "..."],
+  "context": "...",
+  "activities": "...",
+  "recommendations": "..."
+}`,
+};

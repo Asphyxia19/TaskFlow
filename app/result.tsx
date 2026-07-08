@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { ANALYSIS_PROMPT, analyzeImage } from "../lib/gemini";
+import { analyzeImage, PROMPTS } from "../lib/gemini";
 
 type Analysis = {
   objects: string[];
@@ -17,7 +17,10 @@ type Analysis = {
 };
 
 export default function ResultScreen() {
-  const { base64Image } = useLocalSearchParams<{ base64Image: string }>();
+  const { base64Image, promptKey } = useLocalSearchParams<{
+    base64Image: string;
+    promptKey?: string;
+  }>();
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,12 +33,14 @@ export default function ResultScreen() {
     setLoading(true);
     setError(null);
     try {
-      const result = await analyzeImage(base64Image, ANALYSIS_PROMPT);
+      const key = (promptKey as keyof typeof PROMPTS) || "academic";
+      const prompt = PROMPTS[key] ?? PROMPTS.academic;
+
+      const result = await analyzeImage(base64Image, prompt);
       const textPart = result?.candidates?.[0]?.content?.parts?.[0]?.text;
 
       if (!textPart) throw new Error("Empty response from Gemini");
 
-      // Strip markdown code fences if Gemini wraps the JSON in ```json ... ```
       const cleaned = textPart.replace(/```json|```/g, "").trim();
 
       setAnalysis(JSON.parse(cleaned));
